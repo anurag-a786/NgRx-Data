@@ -11,9 +11,16 @@ export class CoursesResolver  {
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> 
     {
-        return this.coursesService.getAll().pipe(
-            map(courses => !!courses)
-        )
+        return this.coursesService.loaded$
+            .pipe(
+                tap(loaded => {
+                    if (!loaded) {
+                       this.coursesService.getAll();
+                    }
+                }),
+                filter(loaded => !!loaded),
+                first()
+            );
     }
 }
 
